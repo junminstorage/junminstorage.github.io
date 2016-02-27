@@ -24,24 +24,24 @@
 
       <section id="introduction" class="clearfix">
         <h3>Introduction</h3>
-        	<p>NodeJS was and is still hot. The fact companies like IBM are starting to take it over saying a lot about the its potentials. 
+        	<p>NodeJS was and is still hot. The fact that companies like IBM are starting to take it over saying a lot about the its potentials. 
         	It is based on Javascript and use Chrome V8 engine as runtime, which make it possible to write application servers. 
-        	One of its bragging points is non-blocking single thread processed using javascript's event loop. Note this architecture is not new, 
+        	One of its bragging points is non-blocking single thread process using javascript's event loop. Note this architecture is not new, 
         	one of <a id='nginx' href='http://www.aosabook.org/en/nginx.html'>Nignx</a> paper talked about its idea to create web server with 
         	single thread process while achieving high concurrency. It allows developers to deliver the functionality of both a web server 
         	and an application server plus web UI in single languages. Node.js is considered a key component for microservices-based development and delivery.  
         	
         	While this is great on paper, but advocates tend to tell great stories like <a href='http://www.jayway.com/2015/04/13/600k-concurrent-websocket-connections-on-aws-using-node-js/'>this</a>.
-        	Reality is not true, to use any tools, frameworks or languages requires hard work and deep understanding of what it can do and what it can not do. In this paper I will point out the issues 
-        	with develop web server using Node.js.
+        	Reality is more real, to use any tools, frameworks or languages requires hard work and deep understanding of what it can do and what it can not do. In this paper I will point out some issues 
+        	I saw when developing web server using Node.js.
         	</p>    
       </section>
 
       <hr>
 
       <section id="main_content">
-		<h3>Nodejs as web server</h3>
-		<p>One of the most popular Node.js web framework is Express, using its HTTP routing methods with various template engines with Express. Developing web server seems super easy. Let's look at its example. 
+		<h3>Node.js as web server</h3>
+		<p>One of the most popular Node.js web framework is Express, using its HTTP routing methods with various template engines. Developing web server seems super easy. Let's look at its example. 
 		</p>
 		<pre>
 var express = require('express');
@@ -56,8 +56,8 @@ app.get('/', function (req, res) {
   				
 });
 		</pre>
-		<p>To use a template engine, here are the few lines</p>
-		<cpre>
+		<p>To use a template engine, just add few more lines</p>
+		<pre>
 app.set('view engine', 'jade');
 app.get('/', function (req, res) {
   	res.render('index', { title: 'Hey', message: 'Hello there!'});
@@ -65,13 +65,13 @@ app.get('/', function (req, res) {
 		</pre>
 		
 		<p>This is great. 10k concurrent connections, right? But like a post office, if the window man doesn't accept mails quickly and pass on, all of the 
-		mail delivery trucks are no use and mails are stuck, in this Node.js case, at event loop. Here are few problems or things go wrong 
-		I encountered during Nodejs web server development.</p>
+		mail delivery trucks are no use and mails are stuck at window, in this Node.js case, at event loop. Here are few problems or things go wrong 
+		during Node.js web server development.</p>
 		
 		<ul>
 			<li>
-				res.send() is blocking call, if we send large chunk of data saying a few megabytes like videos or images, it blocks the event-loop! 
-				So often times a Apache or Nignx web server is being used to serve up its static content like JS, CSS and images, also acting as 
+				res.send() is a blocking call, if we send large chunk of data saying a few megabytes like PDFs or images, it blocks the event-loop! 
+				So often times a Apache or Nignx web server is being used as proxy to serve up its static content like JS, CSS and images, also acting as 
 				load balancer to direct traffic to Node.js servers. Also for high traffic likes news sites static content are often cached at content delivery network (CDN). 
 			</li>
 			
@@ -106,12 +106,13 @@ app.get('/', function (req, res) {
     p.description User has no description			
 				</pre>
 				
-				In reality when developers starts to implement complex business logic in template condition logic, things becomes even worse. Now you have logic everywhere, Node.js backend code, templates, and then browser side.
+				In reality when developers start to implement complex business logic using template condition logic, things becomes even worse. Now you have logic everywhere, Node.js backend, templates, and then browser JS.
 				
 			</li>
 			<li>
 				To make thing even worse, if user interactions with the site triggers HTTP requests which use HTML form to post data to Node.js server, server process the request, then construct another HTML page using template engine and send it back. 
-				Not only the whole page is refreshed along with redundant data like JS/images/CSS, even static content is cached, but it still takes over some of browser's CPU usage.  
+				Not only the whole page is refreshed along with redundant data like JS/images/CSS, even static content is cached, but it still takes over some of browser's CPU usage. Saying user just wants to update his/her first on a user profile page
+				and nothing else, but the whole user profile data is being sent over again from server. 
 			</li>
 			
 		</ul> 
