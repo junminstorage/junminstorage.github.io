@@ -110,6 +110,7 @@ app.get('/', function (req, res) {
 				In reality when developers start to implement complex business logic using template condition logic, things becomes even worse. Now you have logic everywhere, Node.js backend, templates, and then browser JS.
 				
 			</li>
+			<li>To make thing worse, jade-based dynamic page generation is CPU bound due to its cost.  Even with simple templates, generating HTML pages is expensive.</li>
 			<li>
 				To make thing even worse, if user interactions with the site triggers HTTP requests which use HTML form to post data to Node.js server, server process the request, then construct another HTML page using template engine and send it back. 
 				Not only the whole page is refreshed along with redundant data like JS/images/CSS, even static content is cached, but it still takes over some of browser's CPU usage. Saying user just wants to update his/her first on a user profile page
@@ -120,6 +121,27 @@ app.get('/', function (req, res) {
       </section>
 
 	  <section id="solutions">
+	  		<h3>Development solutions</h3>
+	  		<p>For any problems, there will be solutions or mitigation plans. Actually the above section already points out some tips or best practices.
+	  		<ul>
+	  			<li>Serve static content via Nignx/Apache, or for large webs particularly news site with lots of videos content, put up the content to edge network like CDN. 
+	  			<li>Implement node.js server in cluster mode using cluster package. The below we create 1 master and 2 workers which will compete for the same port for incoming requests.
+	  			<pre>
+var cluster = require('cluster')
+
+if ( cluster.isMaster ) {
+  for ( var i=0; i<2; ++i )
+    cluster.fork();
+} else {
+	do whatever you do in single node		
+			
+}
+				</pre>
+	  			<li>Event better have a node.js server cluster reverse proxying by a load balancer. Also terminate an SSL/TLS connection to the client at NGINX side, the communication between NGINX and Node.js is unencrypted.</li>
+	  			<li>Measure the event loop lags, there are some great tools like <a href="https://github.com/lloyd/node-toobusy">toobusy</a> can help us</li>
+	  			<li>Lastly fully take advantage JS's event loop and callbacks. Do not do heavy computing stuffs in JS.</li>	  			
+	  		</ul>
+	  		
 			<h3>An architecture solution</h3>
 			<p>Looking at the above examples, what goes wrong there? So what are the potential solutions? I believe an architecture design needs to be made. Node.js is great for implementing core process or acting as API gateways on top of micro-services. 
 			But using Node.js to develop a complex web servers could lead to problems or even disaster. Along with html generation at server side, this becomes no difference from other technologies like JSP/PHP. 
