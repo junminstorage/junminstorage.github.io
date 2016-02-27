@@ -44,24 +44,24 @@
 		<p>One of the most popular Node.js web framework is Express, using its HTTP routing methods with various template engines with Express. Developing web server seems super easy. Let's look at its example. 
 		</p>
 		<pre>
-	var express = require('express');
-	var app = express();
-	app.get('/', function (req, res) {
-		//doing some non-blocking IO stuffs, e.g. query db or api calls
-		non-blocking-call().then(function(){
-  					res.send('Hello World!');
-  		}catch(function(ex){
-  					res.status(500).send('sorry');
-  		})
+var express = require('express');
+var app = express();
+app.get('/', function (req, res) {
+	//doing some non-blocking IO stuffs, e.g. query db or api calls
+	non-blocking-call().then(function(){
+  			res.send('Hello World!');
+  	}catch(function(ex){
+  			res.status(500).send('sorry');
+  	})
   				
-	});
+});
 		</pre>
 		<p>To use a template engine, here are the few lines</p>
 		<cpre>
-	app.set('view engine', 'jade');
-	app.get('/', function (req, res) {
-  		res.render('index', { title: 'Hey', message: 'Hello there!'});
-	});
+app.set('view engine', 'jade');
+app.get('/', function (req, res) {
+  	res.render('index', { title: 'Hey', message: 'Hello there!'});
+});
 		</pre>
 		
 		<p>This is great. 10k concurrent connections, right? But like a post office, if the window man doesn't accept mails quickly and pass on, all of the 
@@ -90,7 +90,7 @@
 			<li>
 				Another problem with using template engine's condition logic, which is evil to my opinion. Like the following from Jade's reference page. 
 				<pre>
-	- var user = { description: 'foo bar baz' }
+- var user = { description: 'foo bar baz' }
 - var authorised = false
 #user
   if user.description
@@ -118,13 +118,17 @@
       </section>
 
 	  <section id="solutions">
-			<h3>Solutions</h3>
+			<h3>An architecture solution</h3>
 			Looking at the above examples, what goes wrong there? So what are the potential solutions? I believe an architecture design needs to be made. Node.js is great for implementing core process or acting as API gateways on top of micro-services. 
 			But using Node.js to develop a complex web servers could lead to problems or even disaster. Along with html generation at server side, this becomes no difference from other technologies like JSP/PHP. 
 			
 			MEAN stack's AngularJS and Node.js combinations is not only a suite of tools but an architecture. Node.js should go back to what it does best, being application servers to serve the Restful APIs. HTML templates should not contains complex logic and should
 			serve from browser side. Let AngularJS-based single page application to make ajax call to fetch data from Node.js API server and manipulate the DOM and handle the display.   
 			
+			Few years ago, coming from Java/JSP/Servlet background, when I first experienced with SPA development, it is truly mind-blowing. The javascript has become real powerful to handle browser-side and server-side as well. But as for tools or programming languages we try to learn and use, 
+			knowing how is great, but knowing not-to and should-not is at another level, which needs hard work and continuous learning and research. 
+			
+			If you are interested in SPA development, please check out my previous <a href="http://blueocean-penn.blogspot.com/2014/03/reference-architecture-of-single-page.html">blog</a>.
 	  </section>
 
       <footer>
