@@ -43,7 +43,7 @@
 		<h3>Nodejs as web server</h3>
 		<p>One of the most popular Node.js web framework is Express, using its HTTP routing methods with various template engines with Express. Developing web server seems super easy. Let's look at its example. 
 		</p>
-		<code>
+		<pre>
 	var express = require('express');
 	var app = express();
 	app.get('/', function (req, res) {
@@ -55,17 +55,19 @@
   		})
   				
 	});
-		</code>
+		</pre>
 		<p>To use a template engine, here are the few lines</p>
-		<code>
+		<cpre>
 	app.set('view engine', 'jade');
 	app.get('/', function (req, res) {
   		res.render('index', { title: 'Hey', message: 'Hello there!'});
 	});
-		</code>
+		</pre>
+		
 		<p>This is great. 10k concurrent connections, right? But like a post office, if the window man doesn't accept mails quickly and pass on, all of the 
 		mail delivery trucks are no use and mails are stuck, in this Node.js case, at event loop. Here are few problems or things go wrong 
 		I encountered during Nodejs web server development.</p>
+		
 		<ul>
 			<li>
 				res.send() is blocking call, if we send large chunk of data saying a few megabytes like videos or images, it blocks the event-loop! 
@@ -84,11 +86,45 @@
 				fetched from back-end data store. The html form itself is wrapped in a JSON response. there is complicated business logic involved to manipulate the json from multiple data sources and construct the AngularJS-based html form. The whole approach is 
 				questionable at first place. And this cause the performance of whole node.js server down-graded dramatically.  
 			</li>
+			
+			<li>
+				Another problem with using template engine's condition logic, which is evil to my opinion. Like the following from Jade's reference page. 
+				<pre>
+	- var user = { description: 'foo bar baz' }
+- var authorised = false
+#user
+  if user.description
+    h2 Description
+    p.description= user.description
+  else if authorised
+    h2 Description
+    p.description.
+      User has no description,
+      why not add one...
+  else
+    h1 Description
+    p.description User has no description			
+				</pre>
+				
+				In reality when developers starts to implement complex business logic in template condition logic, things becomes even worse. Now you have logic everywhere, Node.js backend code, templates, and then browser side.
+				
+			</li>
+			<li>
+				To make thing even worse, if user interactions with the site triggers HTTP requests which use HTML form to post data to Node.js server, server process the request, then construct another HTML page using template engine and send it back. 
+				Not only the whole page is refreshed along with redundant data like JS/images/CSS, even static content is cached, but it still takes over some of browser's CPU usage.  
+			</li>
+			
 		</ul> 
       </section>
 
 	  <section id="solutions">
-		
+			<h3>Solutions</h3>
+			Looking at the above examples, what goes wrong there? So what are the potential solutions? I believe an architecture design needs to be made. Node.js is great for implementing core process or acting as API gateways on top of micro-services. 
+			But using Node.js to develop a complex web servers could lead to problems or even disaster. Along with html generation at server side, this becomes no difference from other technologies like JSP/PHP. 
+			
+			MEAN stack's AngularJS and Node.js combinations is not only a suite of tools but an architecture. Node.js should go back to what it does best, being application servers to serve the Restful APIs. HTML templates should not contains complex logic and should
+			serve from browser side. Let AngularJS-based single page application to make ajax call to fetch data from Node.js API server and manipulate the DOM and handle the display.   
+			
 	  </section>
 
       <footer>
