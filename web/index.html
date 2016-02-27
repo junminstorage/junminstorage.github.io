@@ -18,12 +18,13 @@
       <div class="inner">
 
         <header>
-          <h1>NodeJS good or bad parts</h1>
+          <h1>NodeJS: good or bad parts</h1>
           <h2></h2>
         </header>
 
         <section id="introduction" class="clearfix">
-        	NodeJS was and is still hot. The fact companies like IBM are starting to take it over saying a lot about the its potentials. 
+        <h3>Introduction</h3>
+        	<p>NodeJS was and is still hot. The fact companies like IBM are starting to take it over saying a lot about the its potentials. 
         	It is based on Javascript and use Chrome V8 engine as runtime, which make it possible to write application servers. 
         	One of its bragging points is non-blocking single thread processed using javascript's event loop. Note this architecture is not new, 
         	one of <a id='nginx' href='http://www.aosabook.org/en/nginx.html'>Nignx</a> paper talked about its idea to create web server with 
@@ -32,44 +33,64 @@
         	
         	While this is great on paper, but advocates tend to tell great stories like <a href='http://www.jayway.com/2015/04/13/600k-concurrent-websocket-connections-on-aws-using-node-js/'>this</a>.
         	Reality is not true, to use any tools, frameworks or languages requires hard work and deep understanding of what it can do and what it can not do. In this paper I will point out the issues 
-        	with develop web server using Node.js.   
+        	with develop web server using Node.js.
+        	</p>    
         </section>
 
         <hr>
 
         <section id="main_content">
-          <h3>
-<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true">
-<span class="octicon octicon-link"></span></a>Welcome to Junmin's GitHub.io Pages.</h3>
+		<h3>Nodejs as web server</h3>
+		<p>One of the most popular Node.js web framework is Express, using its HTTP routing methods with various template engines with Express. Developing web server seems super easy. Let's look at its example. 
+		</p>
+		<pre>
+			var express = require('express');
+			var app = express();
+			app.get('/', function (req, res) {
+				//doing some non-blocking IO stuffs, e.g. query db or api calls
+				non-blocking-call().then(function(){
+  					res.send('Hello World!');
+  				}catch(function(ex){
+  					res.status(500).send('sorry');
+  				})
+  				
+			});
+		</pre>
+		<p>To use a template engine, here are the few lines</p>
+		<pre>
+			app.set('view engine', 'jade');
+			app.get('/', function (req, res) {
+  				res.render('index', { title: 'Hey', message: 'Hello there!'});
+			});
+		</pre>
+		<p>This is great. 10k concurrent connections, right? But like a post office, if the window man doesn't accept mails quickly and pass on, all of the 
+		mail delivery trucks are no use and mails are stuck, in this Node.js case, at event loop. Here are few problems I met during Nodejs web server development.</p>
+		<ul>
+			<li>
+				res.send() is blocking call, if we send large chunk of data saying a few megabytes like videos or images, it blocks the event-loop! 
+				So often times a Apache or Nignx web server is being used to serve up its static content like JS, CSS and images, also acting as 
+				load balancer to direct traffic to Node.js servers. Also for high traffic likes news sites static content are often cached at content delivery network (CDN). 
+			</li>
+			
+			<li>
+				 One of the typical usage to send json response by res.json() call. If the json data is highly complex and large, this becomes 
+				 event-loop blocking again. See this <a href="http://stackoverflow.com/questions/22046758/nodejs-json-stringify-bottleneck">stackoverflow</a> post for discussion and potential 
+				 solutions such as using JSONStream. 
+			</li>
+			
+			<li>
+				Node.js like other scripting languages like python are not performant for high computing stuffs. One of the issues I saw in one project is to generate a huge HTML form based on json schema
+				fetched from back-end data store. The html form itself is wrapped in a JSON response. there is complicated business logic involved to manipulate the json from multiple data sources and construct the AngularJS-based html form. The whole approach is 
+				questionable at first place. 
+			</li>
+		</ul> 
+		
 
-<p>I have been enjoying software development for over ten years. I often spend weekends and nights to learn 
-and try out new technologies, work on some ideas I come out by myself or collaborate with 
-some developers which I never met. I also maintain an <a href="http://blueocean-penn.blogspot.com/">blog</a> 
-which I write down some thoughts and experiences as a software engineer, also use it to solve some code interview problems as I found those questions intriguing.</p>
-
-<h3>
-<a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true">
-<span class="octicon octicon-link"></span></a>Live sheet</h3>
-
-<p>SaaS: spreadsheet as a service. The goal of this project is to create web-based spreadsheet sharing service, similar to google sheet.</p>
-
-<h3>
-<a id="creating-pages-manually" class="anchor" href="#creating-pages-manually" aria-hidden="true">
-<span class="octicon octicon-link"></span></a>JSON schema viewer</h3>
-
-<p>Create tree view for a json schema</p>
-
-<h3>
-<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true">
-<span class="octicon octicon-link"></span></a>BoxyChat</h3>
-
-<p>A socket.io based Node.js chat application, working with a team including Dev Alien(<a href="https://github.com/DevAlien" class="user-mention">@DevAlien</a>), 
-and others.</p>
         
         </section>
 
         <footer>
-          This page was generated by <a href="https://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
+        
         </footer>
 
         
