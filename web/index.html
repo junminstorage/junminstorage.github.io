@@ -17,12 +17,12 @@
     <div id="container">
       <div class="inner">
 
-        <header>
+      <header>
           <h1>NodeJS: good or bad parts</h1>
           <h2></h2>
-        </header>
+      </header>
 
-        <section id="introduction" class="clearfix">
+      <section id="introduction" class="clearfix">
         <h3>Introduction</h3>
         	<p>NodeJS was and is still hot. The fact companies like IBM are starting to take it over saying a lot about the its potentials. 
         	It is based on Javascript and use Chrome V8 engine as runtime, which make it possible to write application servers. 
@@ -35,36 +35,37 @@
         	Reality is not true, to use any tools, frameworks or languages requires hard work and deep understanding of what it can do and what it can not do. In this paper I will point out the issues 
         	with develop web server using Node.js.
         	</p>    
-        </section>
+      </section>
 
-        <hr>
+      <hr>
 
-        <section id="main_content">
+      <section id="main_content">
 		<h3>Nodejs as web server</h3>
 		<p>One of the most popular Node.js web framework is Express, using its HTTP routing methods with various template engines with Express. Developing web server seems super easy. Let's look at its example. 
 		</p>
-		<pre>
-			var express = require('express');
-			var app = express();
-			app.get('/', function (req, res) {
-				//doing some non-blocking IO stuffs, e.g. query db or api calls
-				non-blocking-call().then(function(){
+		<code>
+	var express = require('express');
+	var app = express();
+	app.get('/', function (req, res) {
+		//doing some non-blocking IO stuffs, e.g. query db or api calls
+		non-blocking-call().then(function(){
   					res.send('Hello World!');
-  				}catch(function(ex){
+  		}catch(function(ex){
   					res.status(500).send('sorry');
-  				})
+  		})
   				
-			});
-		</pre>
+	});
+		</code>
 		<p>To use a template engine, here are the few lines</p>
-		<pre>
-			app.set('view engine', 'jade');
-			app.get('/', function (req, res) {
-  				res.render('index', { title: 'Hey', message: 'Hello there!'});
-			});
-		</pre>
+		<code>
+	app.set('view engine', 'jade');
+	app.get('/', function (req, res) {
+  		res.render('index', { title: 'Hey', message: 'Hello there!'});
+	});
+		</code>
 		<p>This is great. 10k concurrent connections, right? But like a post office, if the window man doesn't accept mails quickly and pass on, all of the 
-		mail delivery trucks are no use and mails are stuck, in this Node.js case, at event loop. Here are few problems I met during Nodejs web server development.</p>
+		mail delivery trucks are no use and mails are stuck, in this Node.js case, at event loop. Here are few problems or things go wrong 
+		I encountered during Nodejs web server development.</p>
 		<ul>
 			<li>
 				res.send() is blocking call, if we send large chunk of data saying a few megabytes like videos or images, it blocks the event-loop! 
@@ -81,20 +82,20 @@
 			<li>
 				Node.js like other scripting languages like python are not performant for high computing stuffs. One of the issues I saw in one project is to generate a huge HTML form based on json schema
 				fetched from back-end data store. The html form itself is wrapped in a JSON response. there is complicated business logic involved to manipulate the json from multiple data sources and construct the AngularJS-based html form. The whole approach is 
-				questionable at first place. 
+				questionable at first place. And this cause the performance of whole node.js server down-graded dramatically.  
 			</li>
 		</ul> 
+      </section>
+
+	  <section id="solutions">
 		
+	  </section>
 
+      <footer>
         
-        </section>
-
-        <footer>
-        
-        </footer>
-
-        
-      </div>
+      </footer>
+  
+    </div>
     </div>
   </body>
 </html>
